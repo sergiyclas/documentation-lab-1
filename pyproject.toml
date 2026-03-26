@@ -1,0 +1,41 @@
+[project]
+name = "spotify-lab"
+version = "1.0.0"
+description = "Spotify Documentation Lab - Music Platform Management System"
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [
+    {name = "Documentation Lab", email = "lab@example.com"}
+]
+
+dependencies = [
+    "fastapi>=0.135.0",
+    "uvicorn[standard]>=0.24.0",
+    "sqlalchemy>=2.0.40",
+    "python-multipart>=0.0.20",
+    "PyYAML>=6.0",
+    "pydantic>=2.12.0",
+    "pydantic-settings>=2.1.0",
+    "email-validator>=2.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "black>=23.0.0",
+    "isort>=5.12.0",
+    "flake8>=6.0.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
+
+[tool.black]
+line-length = 100
+target-version = ["py310"]
+
+[tool.isort]
+profile = "black"
+line_length = 100
