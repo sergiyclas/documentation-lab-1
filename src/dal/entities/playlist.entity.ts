@@ -35,16 +35,10 @@ export class Playlist {
   @UpdateDateColumn()
   updatedAt: Date;
 
-  /**
-   * Get total duration of all songs in playlist (ms)
-   */
   getTotalDuration(): number {
     return this.songs.reduce((acc, song) => acc + song.duration, 0);
   }
 
-  /**
-   * Get total duration in minutes
-   */
   getTotalDurationMinutes(): number {
     return Math.round(this.getTotalDuration() / 60000);
   }

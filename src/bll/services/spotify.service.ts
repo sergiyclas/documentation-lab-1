@@ -20,14 +20,6 @@ export class SpotifyService {
     @Inject(DATA_ACCESS_LAYER) private readonly dal: IDataAccessLayer,
   ) {}
 
-  /**
-   * Import data from CSV file
-   * Процес:
-   * 1. Читання рядків з CSV
-   * 2. Створення/пошук сутностей (User, Song, Playlist)
-   * 3. Встановлення відносин
-   * 4. Збереження в БД
-   */
   async importData(filePath: string): Promise<void> {
     try {
       this.logger.info(`🚀 Starting data import from ${filePath}`);
@@ -54,7 +46,6 @@ export class SpotifyService {
         const duration = parseInt(durationStr, 10);
 
         try {
-          // 1. Обробка пісні (уникнення дублікатів глобально)
           let song = await this.dal.findSong(songTitle, artist);
           if (!song) {
             song = new Song();
@@ -67,7 +58,6 @@ export class SpotifyService {
             this.logger.debug(`✅ Song created: ${songTitle} by ${artist}`);
           }
 
-          // 2. Обробка користувача
           let user = await this.dal.findUserByEmail(email);
           if (!user) {
             user = new User();
@@ -75,7 +65,6 @@ export class SpotifyService {
             user.username = email.split('@')[0];
             user.playlists = [];
 
-            // Factory pattern для підписок
             switch (subType.toUpperCase()) {
               case 'PREMIUM':
                 user.subscription = new PremiumSubscription();
@@ -91,7 +80,6 @@ export class SpotifyService {
             this.logger.debug(`✅ User created: ${email} (${subType})`);
           }
 
-          // 3. Обробка плейліста (уникнення дублікатів у користувача)
           let playlist = user.playlists.find((p) => p.name === playlistName);
           if (!playlist) {
             playlist = new Playlist();
@@ -103,13 +91,11 @@ export class SpotifyService {
             this.logger.debug(`✅ Playlist created: ${playlistName}`);
           }
 
-          // 4. Додавання пісні в плейліст (якщо її там ще немає)
           const songExistsInPlaylist = playlist.songs.some((s) => s.id === song.id);
           if (!songExistsInPlaylist) {
             playlist.songs.push(song);
           }
 
-          // 5. Збереження (каскадно оновить користувача, підписку, плейлисти та зв'язки)
           await this.dal.saveUser(user);
 
           if (lineCount % 100 === 0) {

@@ -31,19 +31,13 @@ export abstract class Subscription {
   abstract getPrice(): number;
   abstract getType(): string;
 
-  /**
-   * Check if subscription is active
-   */
   isActive(): boolean {
     const now = new Date();
     return !this.endDate || this.endDate > now;
   }
 
-  /**
-   * Get remaining days of subscription
-   */
   getRemainingDays(): number {
-    if (!this.endDate) return -1; // Unlimited
+    if (!this.endDate) return -1;
     const now = new Date();
     if (this.endDate <= now) return 0;
     return Math.ceil((this.endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));

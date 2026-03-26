@@ -14,9 +14,6 @@ export class DataAccessService implements IDataAccessLayer {
     @InjectRepository(Playlist) private readonly playlistRepo: Repository<Playlist>,
   ) {}
 
-  /**
-   * User Operations
-   */
   async findUserByEmail(email: string): Promise<User | null> {
     return this.userRepo.findOne({
       where: { email },
@@ -45,9 +42,6 @@ export class DataAccessService implements IDataAccessLayer {
     await this.userRepo.delete(id);
   }
 
-  /**
-   * Song Operations
-   */
   async findSong(title: string, artist: string): Promise<Song | null> {
     return this.songRepo.findOne({ where: { title, artist } });
   }
@@ -64,9 +58,6 @@ export class DataAccessService implements IDataAccessLayer {
     return this.songRepo.find();
   }
 
-  /**
-   * Playlist Operations
-   */
   async findPlaylistById(id: number): Promise<Playlist | null> {
     return this.playlistRepo.findOne({
       where: { id },
@@ -89,9 +80,6 @@ export class DataAccessService implements IDataAccessLayer {
     await this.playlistRepo.delete(id);
   }
 
-  /**
-   * Statistics
-   */
   async getTotalUsers(): Promise<number> {
     return this.userRepo.count();
   }

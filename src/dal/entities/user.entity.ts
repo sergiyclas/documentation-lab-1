@@ -40,16 +40,10 @@ export class User {
   @Column({ default: true })
   isActive: boolean;
 
-  /**
-   * Get total count of songs across all playlists
-   */
   getTotalSongs(): number {
     return this.playlists.reduce((acc, playlist) => acc + playlist.songs.length, 0);
   }
 
-  /**
-   * Get unique songs (without duplicates across playlists)
-   */
   getUniqueSongs() {
     const songMap = new Map();
     this.playlists.forEach((playlist) => {
