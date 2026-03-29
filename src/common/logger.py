@@ -1,3 +1,5 @@
+# src/common/logger.py
+
 """Logger configuration"""
 
 import logging

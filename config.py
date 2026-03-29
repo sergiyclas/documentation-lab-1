@@ -1,3 +1,4 @@
+# config.py
 """
 Configuration settings for Spotify application
 """

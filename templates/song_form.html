@@ -1,0 +1,100 @@
+<!-- song_form.html -->
+
+{% extends "base.html" %}
+
+{% block title %}{% if song %}Редагувати пісню{% else %}Додати пісню{% endif %} - Spotify Platform{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>{% if song %}✏️ Редагувати пісню{% else %}➕ Додати нову пісню{% endif %}</h2>
+</div>
+
+{% if errors %}
+<div class="alert alert-danger">
+    <ul>
+    {% for error in errors %}
+        <li>{{ error }}</li>
+    {% endfor %}
+    </ul>
+</div>
+{% endif %}
+
+<div class="form-container">
+    <form method="POST" class="form">
+        <div class="form-group">
+            <label for="title">Назва пісні *</label>
+            <input 
+                type="text" 
+                id="title" 
+                name="title" 
+                class="form-control" 
+                placeholder="Введіть назву пісні"
+                value="{{ song.title if song else '' }}"
+                required
+            >
+        </div>
+
+        <div class="form-group">
+            <label for="artist">Виконавець *</label>
+            <input 
+                type="text" 
+                id="artist" 
+                name="artist" 
+                class="form-control" 
+                placeholder="Введіть ім'я виконавця"
+                value="{{ song.artist if song else '' }}"
+                required
+            >
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label for="duration">Тривалість (мілісекунди) *</label>
+                <input 
+                    type="number" 
+                    id="duration" 
+                    name="duration" 
+                    class="form-control" 
+                    placeholder="Введіть тривалість"
+                    value="{{ song.duration if song else '' }}"
+                    required
+                    min="0"
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="genre">Жанр</label>
+                <input 
+                    type="text" 
+                    id="genre" 
+                    name="genre" 
+                    class="form-control" 
+                    placeholder="Введіть жанр (опціонально)"
+                    value="{{ song.genre if song else '' }}"
+                >
+            </div>
+        </div>
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn-primary">
+                {% if song %}Зберегти зміни{% else %}Додати пісню{% endif %}
+            </button>
+            <a href="/songs" class="btn btn-secondary">Скасувати</a>
+        </div>
+    </form>
+</div>
+
+<style>
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

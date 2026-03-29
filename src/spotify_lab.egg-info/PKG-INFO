@@ -1,3 +1,26 @@
+Metadata-Version: 2.4
+Name: spotify-lab
+Version: 1.0.0
+Summary: Spotify Documentation Lab - Music Platform Management System
+Author-email: Documentation Lab <lab@example.com>
+License: MIT
+Requires-Python: >=3.10
+Description-Content-Type: text/markdown
+Requires-Dist: fastapi>=0.135.0
+Requires-Dist: uvicorn[standard]>=0.24.0
+Requires-Dist: sqlalchemy>=2.0.40
+Requires-Dist: python-multipart>=0.0.20
+Requires-Dist: PyYAML>=6.0
+Requires-Dist: pydantic>=2.12.0
+Requires-Dist: pydantic-settings>=2.1.0
+Requires-Dist: email-validator>=2.0.0
+Requires-Dist: jinja2>=3.0.0
+Provides-Extra: dev
+Requires-Dist: pytest>=7.4.0; extra == "dev"
+Requires-Dist: black>=23.0.0; extra == "dev"
+Requires-Dist: isort>=5.12.0; extra == "dev"
+Requires-Dist: flake8>=6.0.0; extra == "dev"
+
 # 🎵 Spotify Platform - Python/FastAPI Implementation
 
 **Варіант:** 12 | **Техстек:** Python, FastAPI, SQLAlchemy, SQLite3
@@ -34,50 +57,34 @@ src/
 ├── common/                      # Спільні утиліти
 │   ├── __init__.py
 │   ├── logger.py                # Логування
-│   ├── constants.py             # Константи
-│   └── __pycache__/             # Кеш Python
+│   └── constants.py             # Константи
 │
-├── pl/                          # Presentation Layer (маршрути)
+├── pl/                          # Presentation Layer
 │   ├── __init__.py
-│   ├── routes.py                # FastAPI маршрути
-│   ├── schemas.py               # Pydantic моделі для валідації
-│   └── __pycache__/
+│   └── routes.py                # FastAPI маршрути
 │
-├── bll/                         # Business Logic Layer (служби)
+├── bll/                         # Business Logic Layer
 │   ├── __init__.py
-│   ├── services.py              # SpotifyService, StatisticsService
-│   └── __pycache__/
+│   └── services.py              # SpotifyService, StatisticsService
 │
-├── dal/                         # Data Access Layer (дані)
+├── dal/                         # Data Access Layer
 │   ├── __init__.py
 │   ├── database.py              # Налаштування БД та сесій
 │   ├── models.py                # SQLAlchemy моделі
-│   ├── repositories.py          # DataAccessService
-│   └── __pycache__/
+│   └── repositories.py          # DataAccessService
 │
-├── generators/                  # Генератори даних
+├── generators/                  # Генератори
 │   ├── __init__.py
-│   ├── generate_csv.py          # Генератор тестових CSV даних
-│   └── __pycache__/
+│   └── generate_csv.py          # Генератор тестових CSV даних
 │
-├── spotify_lab.egg-info/        # Інформація про пакет (auto)
 ├── __init__.py
-├── main.py                      # FastAPI додаток
+└── main.py                      # FastAPI додаток
 │
-config.py                        # Конфігурація змінних
-main.py                         # Entry point для запуску
-cli.py                          # Утиліти командного рядка
-pyproject.toml                  # Конфігурація проекту (замість requirements.txt)
-spotify_data.csv                # Тестові дані для імпорту
-run.bat                         # Скрипт для швидкого запуску (Windows)
-static/
-├── style.css                   # CSS стилі
-templates/
-├── base.html                   # Базовий шаблон
-├── index.html                  # Головна сторінка
-├── songs.html, song_form.html  # Пісні
-├── playlists.html etc.         # Плейлисти
-└── statistics.html             # Статистика
+config.py                        # Конфігурація
+main.py                         # Entry point
+cli.py                          # Утиліти CLI
+requirements.txt                # Python залежності
+.env.example                    # Приклад конфігурації
 ```
 
 ## 📚 Сутності базі даних
@@ -139,47 +146,40 @@ Subclasses:
 ## 🚀 Встановлення та запуск
 
 ### Вимоги
-- Python 3.10+
-- pip або uv (менеджер пакетів)
+- Python 3.8+
+- pip
 - SQLite3 (включено у Python)
 
 ### Крок 1: Встановлення залежностей
 
 ```bash
-# Встановіть залежності через uv (рекомендується)
-uv sync
+# Встановіть залежності
+pip install -r requirements.txt
 
-# Або через pip в віртуальному середовищі
+# Або в віртуальному середовищі (рекомендується)
 python -m venv venv
 # Windows:
 venv\Scripts\activate
 # Linux/Mac:
 source venv/bin/activate
 
-pip install -e .
+pip install -r requirements.txt
 ```
 
 ### Крок 2: Налаштування конфігурації
 
-Конфігурація вкажена у [config.py](config.py) і може бути перевищена змінними околишу. По (стандартная) конфігурація:
+```bash
+# Скопіюйте .env.example в .env
+cp .env.example .env
 
-```python
-# База даних
-DATABASE_URL = "sqlite:///./spotify.db"
-
-# Корневая директория CSV
-CSV_FILE_PATH = "./spotify_data.csv"
-
-# API
-API_TITLE = "Spotify Platform API"
-API_VERSION = "2.0.0"
+# (Опціонально) Відредагуйте .env файл за потреби
 ```
 
 ### Крок 3: Запуск додатку
 
 ```bash
-# Запуск через uv
-uv run main.py
+# Запуск FastAPI додатку
+python main.py
 
 # Або через uvicorn безпосередньо
 uvicorn src.main:app --reload
@@ -191,34 +191,24 @@ ReDoc документація: **http://localhost:8000/redoc**
 
 ## 📋 Команди CLI
 
-Для виконання CLI команд вам потрібна активна віртуальне середовище або uv.
-
 ### Ініціалізація БД
 ```bash
 python cli.py init-db
-# або
-uv run cli.py init-db
 ```
 
 ### Імпорт CSV даних
 ```bash
 python cli.py import-csv --csv spotify_data.csv
-# або
-uv run cli.py import-csv --csv spotify_data.csv
 ```
 
 ### Показ статистики
 ```bash
 python cli.py stats
-# або
-uv run cli.py stats
 ```
 
 ### Очистка БД
 ```bash
 python cli.py clean
-# або
-uv run cli.py clean
 ```
 
 ## 🔌 API Endpoints
@@ -348,15 +338,13 @@ python -c "import sqlite3; conn = sqlite3.connect('spotify.db'); print([row for 
 
 ## 🔧 Залежності Python
 
-| Пакет | Мінімальна версія | Призначення |
-|-------|----------|----------|
-| fastapi | 0.135.0 | Web framework |
-| uvicorn[standard] | 0.24.0 | ASGI server |
-| sqlalchemy | 2.0.40 | ORM |
-| pydantic | 2.12.0 | Data validation |
-| python-multipart | 0.0.20 | Form data parsing |
-| jinja2 | 3.0.0 | Template rendering |
-| pydantic-settings | 2.1.0 | Environment config |
+| Пакет | Версія | Призначення |
+|-------|--------|------------|
+| fastapi | 0.104.1 | Web framework |
+| uvicorn | 0.24.0 | ASGI server |
+| sqlalchemy | 2.0.23 | ORM |
+| pydantic | 2.5.0 | Data validation |
+| python-multipart | 0.0.6 | Form data parsing |
 
 ## 📚 Примітки та переваги Python реалізації
 
@@ -414,6 +402,5 @@ _ = user.playlists    # Força載入
 ---
 
 **Дата:** Март 2026  
-**Версія проекту:** 1.0.0  
-**Версія API:** 2.0.0  
-**Мінімальна версія Python:** 3.10
+**Версія Python:** 3.0.0  
+**Версія API:** 2.0.0

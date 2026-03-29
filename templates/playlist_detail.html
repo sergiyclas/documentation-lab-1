@@ -1,0 +1,126 @@
+<!-- playlist_detail.html -->
+
+{% extends "base.html" %}
+
+{% block title %}{{ playlist.name }} - Spotify Platform{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <a href="/playlists" class="btn btn-secondary" style="margin-bottom: 1rem;">← Повернутися</a>
+    <h2>📋 {{ playlist.name }}</h2>
+</div>
+
+{% if playlist.description %}
+<div class="playlist-description">
+    <p>{{ playlist.description }}</p>
+</div>
+{% endif %}
+
+<div class="playlist-info">
+    <span class="info-item">ID: {{ playlist.id }}</span>
+    <span class="info-item">Власник: {{ playlist.owner_id }}</span>
+    <span class="info-item">Пісень: {{ playlist.songs | length }}</span>
+    <span class="info-item">Створено: {{ playlist.created_at }}</span>
+</div>
+
+{% if songs %}
+<div class="section">
+    <h3>🎵 Пісні в плейлісті</h3>
+    <div class="table-responsive">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Назва</th>
+                    <th>Виконавець</th>
+                    <th>Тривалість</th>
+                    <th>Жанр</th>
+                    <th>Дія</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for song in songs %}
+                <tr>
+                    <td>{{ loop.index }}</td>
+                    <td>{{ song.title }}</td>
+                    <td>{{ song.artist }}</td>
+                    <td>{{ (song.duration / 1000) | round(2) }}s</td>
+                    <td>{{ song.genre or '-' }}</td>
+                    <td>
+                        <form method="POST" action="/playlists/{{ playlist.id }}/songs/{{ song.id }}/remove" style="display: inline;">
+                            <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Видалити пісню?')">Видалити</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<div class="section">
+    <h3>➕ Додати пісню до плейлісту</h3>
+    <form method="POST" action="/playlists/{{ playlist.id }}/add-song" class="form">
+        <div class="form-group">
+            <label for="song_id">Виберіть пісню:</label>
+            <select id="song_id" name="song_id" class="form-control" required>
+                <option value="">-- Виберіть пісню --</option>
+                {% for available_song in available_songs %}
+                <option value="{{ available_song.id }}">
+                    {{ available_song.title }} - {{ available_song.artist }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <button type="submit" class="btn btn-primary">Додати пісню</button>
+    </form>
+</div>
+{% else %}
+<div class="empty-state">
+    <p>Плейліст порожній. Додайте пісні до плейлісту.</p>
+</div>
+{% endif %}
+
+<div class="action-buttons" style="margin-top: 2rem;">
+    <a href="/playlists/{{ playlist.id }}/edit" class="btn btn-warning">✏️ Редагувати плейліст</a>
+    <form method="POST" action="/playlists/{{ playlist.id }}/delete" style="display: inline;">
+        <button type="submit" class="btn btn-danger" onclick="return confirm('Видалити плейліст?')">🗑️ Видалити плейліст</button>
+    </form>
+</div>
+
+<style>
+    .playlist-description {
+        background: #f0f7ff;
+        border-left: 4px solid #007bff;
+        padding: 1rem;
+        margin: 1rem 0;
+        border-radius: 4px;
+    }
+
+    .playlist-info {
+        display: flex;
+        gap: 2rem;
+        margin: 1.5rem 0;
+        flex-wrap: wrap;
+    }
+
+    .info-item {
+        background: #f8f9fa;
+        padding: 0.5rem 1rem;
+        border-radius: 4px;
+        font-size: 0.95rem;
+    }
+
+    .section {
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid #dee2e6;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+</style>
+{% endblock %}

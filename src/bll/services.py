@@ -1,3 +1,5 @@
+# src/bll/services.py
+
 """Business Logic Layer - Services"""
 
 import csv
@@ -175,6 +177,68 @@ class SpotifyService:
             "created_at": playlist.created_at.isoformat(),
             "updated_at": playlist.updated_at.isoformat(),
         }
+
+    # ==================== CRUD Operations ====================
+
+    async def create_song_direct(self, title: str, artist: str, duration: int, genre: str = None) -> Song:
+        """Create a new song"""
+        return await self.dal.create_song(title, artist, duration, genre)
+
+    async def update_song_direct(self, song_id: int, title: str = None, artist: str = None,
+                                  duration: int = None, genre: str = None) -> Dict[str, Any]:
+        """Update song"""
+        song = await self.dal.update_song(song_id, title=title, artist=artist, 
+                                         duration=duration, genre=genre)
+        if not song:
+            return {"status": "error", "message": "Song not found"}
+        
+        return {
+            "status": "success",
+            "id": song.id,
+            "title": song.title,
+            "artist": song.artist,
+            "duration": song.duration,
+            "genre": song.genre,
+        }
+
+    async def delete_song_direct(self, song_id: int) -> Dict[str, Any]:
+        """Delete song"""
+        success = await self.dal.delete_song(song_id)
+        if not success:
+            return {"status": "error", "message": "Song not found"}
+        return {"status": "success", "message": "Song deleted"}
+
+    async def create_playlist_direct(self, name: str, owner_id: int, description: str = None) -> Playlist:
+        """Create a new playlist"""
+        return await self.dal.create_playlist(name, owner_id, description)
+
+    async def update_playlist_direct(self, playlist_id: int, name: str = None, 
+                                     description: str = None) -> Dict[str, Any]:
+        """Update playlist"""
+        playlist = await self.dal.update_playlist(playlist_id, name=name, description=description)
+        if not playlist:
+            return {"status": "error", "message": "Playlist not found"}
+        
+        return {
+            "status": "success",
+            "id": playlist.id,
+            "name": playlist.name,
+            "description": playlist.description,
+        }
+
+    async def delete_playlist_direct(self, playlist_id: int) -> Dict[str, Any]:
+        """Delete playlist"""
+        success = await self.dal.delete_playlist(playlist_id)
+        if not success:
+            return {"status": "error", "message": "Playlist not found"}
+        return {"status": "success", "message": "Playlist deleted"}
+
+    async def remove_song_from_playlist_direct(self, playlist_id: int, song_id: int) -> Dict[str, Any]:
+        """Remove song from playlist"""
+        success = await self.dal.remove_song_from_playlist(playlist_id, song_id)
+        if not success:
+            return {"status": "error", "message": "Playlist or song not found"}
+        return {"status": "success", "message": "Song removed from playlist"}
 
 
 class StatisticsService:

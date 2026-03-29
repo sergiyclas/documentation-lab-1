@@ -1,3 +1,5 @@
+# src/generators/generate_csv.py
+
 """CSV data generator"""
 
 import csv

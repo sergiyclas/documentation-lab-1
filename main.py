@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# main.py
 """
 Main entry point for the Spotify application
 Run with: python main.py
@@ -32,7 +32,7 @@ def main():
     # Run the application
     uvicorn.run(
         app,
-        host="0.0.0.0",
+        host="localhost",
         port=8000,
         log_level="info"
     )

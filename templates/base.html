@@ -1,0 +1,34 @@
+<!-- templates/base.html -->
+
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Spotify Platform{% endblock %}</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-brand">
+                <h1>🎵 Spotify Platform</h1>
+            </div>
+            <ul class="navbar-menu">
+                <li><a href="/">Головна</a></li>
+                <li><a href="/songs">Пісні</a></li>
+                <li><a href="/playlists">Плейлисти</a></li>
+                <li><a href="/statistics">Статистика</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <main class="container">
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer">
+        <p>&copy; 2026 Spotify Platform | Документаційна лабораторна 3</p>
+    </footer>
+</body>
+</html>

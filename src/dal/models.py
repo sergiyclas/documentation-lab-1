@@ -1,3 +1,5 @@
+# src/dal/models.py
+
 """SQLAlchemy entity models for Spotify application"""
 
 from datetime import datetime

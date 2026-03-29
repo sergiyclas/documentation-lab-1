@@ -1,3 +1,5 @@
+# src/common/constants.py
+
 """Application constants"""
 
 SUBSCRIPTION_TYPES = {

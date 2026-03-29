@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+# cli.py
 """Utility scripts for the Spotify application"""
 import os
 import sys

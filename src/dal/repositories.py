@@ -1,3 +1,5 @@
+# src/dal/repositories.py
+
 """Data Access Layer - Repository implementation"""
 
 from datetime import datetime
@@ -47,6 +49,12 @@ class IDataAccessLayer:
     async def get_all_songs(self) -> List[Song]:
         raise NotImplementedError
 
+    async def update_song(self, song_id: int, **kwargs) -> Optional[Song]:
+        raise NotImplementedError
+
+    async def delete_song(self, song_id: int) -> bool:
+        raise NotImplementedError
+
     # Playlist operations
     async def get_playlist_by_name_and_owner(self, name: str, owner_id: int) -> Optional[Playlist]:
         raise NotImplementedError
@@ -60,7 +68,16 @@ class IDataAccessLayer:
     async def add_song_to_playlist(self, playlist_id: int, song_id: int) -> None:
         raise NotImplementedError
 
+    async def remove_song_from_playlist(self, playlist_id: int, song_id: int) -> bool:
+        raise NotImplementedError
+
     async def get_all_playlists(self) -> List[Playlist]:
+        raise NotImplementedError
+
+    async def update_playlist(self, playlist_id: int, **kwargs) -> Optional[Playlist]:
+        raise NotImplementedError
+
+    async def delete_playlist(self, playlist_id: int) -> bool:
         raise NotImplementedError
 
 
@@ -151,6 +168,42 @@ class DataAccessService(IDataAccessLayer):
         logger.info(f"Retrieved {len(songs)} songs")
         return songs
 
+    async def update_song(
+        self, song_id: int, title: str = None, artist: str = None, 
+        duration: int = None, genre: str = None
+    ) -> Optional[Song]:
+        """Update song details"""
+        song = await self.get_song_by_id(song_id)
+        if not song:
+            logger.warning(f"Song {song_id} not found")
+            return None
+
+        if title:
+            song.title = title
+        if artist:
+            song.artist = artist
+        if duration is not None:
+            song.duration = duration
+        if genre:
+            song.genre = genre
+
+        self.db.commit()
+        self.db.refresh(song)
+        logger.info(f"Song updated: {song_id}")
+        return song
+
+    async def delete_song(self, song_id: int) -> bool:
+        """Delete song by ID"""
+        song = await self.get_song_by_id(song_id)
+        if not song:
+            logger.warning(f"Song {song_id} not found")
+            return False
+
+        self.db.delete(song)
+        self.db.commit()
+        logger.info(f"Song deleted: {song_id}")
+        return True
+
     # ==================== Playlist Operations ====================
 
     async def get_playlist_by_name_and_owner(self, name: str, owner_id: int) -> Optional[Playlist]:
@@ -209,6 +262,57 @@ class DataAccessService(IDataAccessLayer):
         playlists = self.db.query(Playlist).all()
         logger.info(f"Retrieved {len(playlists)} playlists")
         return playlists
+
+    async def update_playlist(
+        self, playlist_id: int, name: str = None, description: str = None
+    ) -> Optional[Playlist]:
+        """Update playlist details"""
+        playlist = await self.get_playlist_by_id(playlist_id)
+        if not playlist:
+            logger.warning(f"Playlist {playlist_id} not found")
+            return None
+
+        if name:
+            playlist.name = name
+        if description is not None:
+            playlist.description = description
+
+        playlist.updated_at = datetime.utcnow()
+        self.db.commit()
+        self.db.refresh(playlist)
+        logger.info(f"Playlist updated: {playlist_id}")
+        return playlist
+
+    async def delete_playlist(self, playlist_id: int) -> bool:
+        """Delete playlist by ID"""
+        playlist = await self.get_playlist_by_id(playlist_id)
+        if not playlist:
+            logger.warning(f"Playlist {playlist_id} not found")
+            return False
+
+        self.db.delete(playlist)
+        self.db.commit()
+        logger.info(f"Playlist deleted: {playlist_id}")
+        return True
+
+    async def remove_song_from_playlist(self, playlist_id: int, song_id: int) -> bool:
+        """Remove song from playlist"""
+        playlist = await self.get_playlist_by_id(playlist_id)
+        song = await self.get_song_by_id(song_id)
+
+        if not playlist or not song:
+            logger.warning(f"Playlist {playlist_id} or Song {song_id} not found")
+            return False
+
+        if song in playlist.songs:
+            playlist.songs.remove(song)
+            playlist.updated_at = datetime.utcnow()
+            self.db.commit()
+            logger.info(f"Song {song_id} removed from Playlist {playlist_id}")
+            return True
+
+        logger.warning(f"Song {song_id} not in Playlist {playlist_id}")
+        return False
 
     # ==================== Subscription Factory ====================
 

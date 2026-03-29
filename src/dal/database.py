@@ -1,3 +1,5 @@
+# src/dal/database.py
+
 """Database configuration and initialization"""
 
 from sqlalchemy import create_engine
