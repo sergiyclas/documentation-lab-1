@@ -1,419 +1,288 @@
-# 🎵 Spotify Platform - Python/FastAPI Implementation
+# 🎵 Spotify Platform - Web Interface (MVC Implementation)
 
-**Варіант:** 12 | **Техстек:** Python, FastAPI, SQLAlchemy, SQLite3
+## Лабораторна 3: Реалізація Web-додатку на основі шаблону MVC
 
-## 📋 Опис проекту
+Цей документ описує реалізацію Web-інтерфейсу для Spotify Platform з дотриманням MVC архітектури.
 
-Це переписана реалізація документаційної лабораторної роботи на **Python стеку с FastAPI** замість TypeScript/NestJS. Проект реалізує ту ж **трирівневу архітектуру** (Presentation Layer, Business Logic Layer, Data Access Layer) з дотриманням SOLID принципів.
+## 📋 Що було реалізовано
 
-## 🏗️ Архітектура проекту
+### 1. **Model та Business Logic Layer**
+- ✅ SQLAlchemy ORM моделі (User, Song, Playlist, Subscription)
+- ✅ Business Logic Services (SpotifyService, StatisticsService)
+- ✅ Repository Pattern для DAL (Data Access Layer)
+- ✅ CRUD операції для Song та Playlist
+
+### 2. **View Layer (HTML Шаблони)**
+Створено 8 HTML шаблонів використовуючи Jinja2:
+
+#### **Основні сторінки:**
+- `base.html` - базовий шаблон з навігацією та footer
+- `index.html` - домашня сторінка зі статистикою
+- `statistics.html` - сторінка зі статистикою платформи
+
+#### **Пісні (Songs):**
+- `songs.html` - список всіх пісень з CRUD кнопками
+- `song_form.html` - форма для додавання/редагування пісні
+
+#### **Плейлисти (Playlists):**
+- `playlists.html` - список плейлистів у формі карток
+- `playlist_detail.html` - деталі плейлісту з піснями
+- `playlist_form.html` - форма для створення/редагування плейлісту
+
+### 3. **Controller (FastAPI Routes)**
+
+#### **HTML Endpoints (View Layer):**
+```
+GET  /                           - Домашня сторінка
+GET  /songs                      - Список пісень
+GET  /songs/create               - Форма створення пісні
+POST /songs/create               - Обробка створення пісні
+GET  /songs/{id}/edit            - Форма редагування пісні
+POST /songs/{id}/edit            - Обробка редагування пісні
+POST /songs/{id}/delete          - Видалення пісні
+GET  /playlists                  - Список плейлистів
+GET  /playlists/create           - Форма створення плейлісту
+POST /playlists/create           - Обробка створення плейлісту
+GET  /playlists/{id}             - Деталі плейлісту
+GET  /playlists/{id}/edit        - Форма редагування плейлісту
+POST /playlists/{id}/edit        - Обробка редагування плейлісту
+POST /playlists/{id}/delete      - Видалення плейлісту
+POST /playlists/{id}/add-song    - Додавання пісні до плейлісту
+POST /playlists/{id}/songs/{sid}/remove - Видалення пісні з плейлісту
+GET  /statistics                 - Статистика платформи
+```
+
+#### **API Endpoints (JSON):**
+```
+POST /api/import/csv             - Імпорт даних з CSV
+GET  /api/users                  - Отримати всіх користувачів
+GET  /api/users/{id}             - Отримати користувача з плейлистами
+GET  /api/songs                  - Отримати всі пісні
+GET  /api/playlists              - Отримати всі плейлисти
+GET  /api/playlists/{id}         - Отримати плейліст з піснями
+GET  /api/statistics             - Отримати статистику
+GET  /api/health                 - Health check
+```
+
+### 4. **Стилізація (CSS)**
+- `static/style.css` - комплексні CSS стилі з:
+  - Responsive дизайном (мобільні, планшети, десктоп)
+  - Градієнтними кнопками і картками
+  - Таблицями з гарним форматуванням
+  - Формами з валідацією
+  - Анімаціями та переходами
+
+## 🏗️ Архітектура MVC
 
 ```
-┌─────────────────────────────────────────────────────┐
-│          Presentation Layer (PL)                    │
-│         FastAPI Routes & HTTP Handlers              │
-└───────────────────┬─────────────────────────────────┘
-                    │
-┌───────────────────▼─────────────────────────────────┐
-│      Business Logic Layer (BLL)                     │
-│  SpotifyService, StatisticsService                 │
-│  (CSV Import, управління даними)                  │
-└───────────────────┬─────────────────────────────────┘
-                    │
-┌───────────────────▼─────────────────────────────────┐
-│      Data Access Layer (DAL)                        │
-│  Repository Pattern + SQLAlchemy                   │
-│  (User, Song, Playlist, Subscription)             │
-└─────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────┐
+│         VIEW LAYER (Presentation)           │
+│  HTML Template + CSS + Forms                │
+│  - base.html, songs.html, playlist*.html    │
+│  - style.css (responsive design)            │
+└─────────────────┬───────────────────────────┘
+                  │ (Користувач взаємодіє)
+┌─────────────────▼───────────────────────────┐
+│      CONTROLLER (FastAPI Routes)            │
+│  - HTML endpoints (/songs, /playlists)      │
+│  - API endpoints (/api/songs, /api/users)   │
+│  - Form processing (POST/PUT/DELETE)        │
+└─────────────────┬───────────────────────────┘
+                  │ (Бізнес-логіка)
+┌─────────────────▼───────────────────────────┐
+│     MODEL LAYER (Business Logic)            │
+│  - SpotifyService (управління даними)       │
+│  - StatisticsService (аналітика)            │
+│  - DataAccessService (репозиторії)          │
+└─────────────────┬───────────────────────────┘
+                  │ (БД операції)
+┌─────────────────▼───────────────────────────┐
+│        DATA ACCESS LAYER (DAL)              │
+│  - SQLAlchemy ORM моделі                    │
+│  - Repository Pattern                       │
+│  - CRUD операції                            │
+│  - SQLite база даних                        │
+└─────────────────────────────────────────────┘
 ```
 
-### Файлова структура
+## 🚀 CRUD Операції
+
+### Songs (Пісні)
+```
+CREATE: POST /songs/create          (Форма: song_form.html)
+READ:   GET  /songs                 (Список: songs.html)
+UPDATE: POST /songs/{id}/edit       (Форма: song_form.html)
+DELETE: POST /songs/{id}/delete     (Кнопка с підтвердженням)
+```
+
+### Playlists (Плейлисти)
+```
+CREATE: POST /playlists/create      (Форма: playlist_form.html)
+READ:   GET  /playlists             (Карти: playlists.html)
+        GET  /playlists/{id}        (Деталі: playlist_detail.html)
+UPDATE: POST /playlists/{id}/edit   (Форма: playlist_form.html)
+DELETE: POST /playlists/{id}/delete (Кнопка с підтвердженням)
+ADD:    POST /playlists/{id}/add-song (Dropdown в деталях)
+REMOVE: POST /playlists/{id}/songs/{sid}/remove
+```
+
+## 🎨 Функціональні Можливості
+
+### ✨ Користувацьський Інтерфейс
+- **Навігація** - меню з посиланнями на основні сторінки
+- **Формування** - інтуїтивні форми з валідацією
+- **Таблиці** - сортування та перегляд даних у таблицях
+- **Карти** - красивий перегляд плейлистів у форматі карток
+- **Статистика** - графічне представлення даних з прогрес-барами
+
+### 🔄 Взаємодія Даних
+- Додавання пісень до плейлистів
+- Видалення пісень з плейлистів
+- Редагування імені та опису плейлістів
+- Видалення всіх даних через простий інтерфейс
+
+### 📊 Демонстрація Бізнес-Логіки
+- Отримання даних з БД через BLL сервіси
+- Управління відносинами (relationships) між сутностями
+- Трансформація даних із моделей у представлення
+
+## 📁 Структура Файлів
 
 ```
-src/
-├── common/                      # Спільні утиліти
-│   ├── __init__.py
-│   ├── logger.py                # Логування
-│   ├── constants.py             # Константи
-│   └── __pycache__/             # Кеш Python
+project/
+├── templates/                      # HTML шаблони
+│   ├── base.html                   # Базовий шаблон
+│   ├── index.html                  # Домашня сторінка
+│   ├── songs.html                  # Список пісень
+│   ├── song_form.html              # Форма пісні
+│   ├── playlists.html              # Список плейлистів
+│   ├── playlist_detail.html        # Деталі плейлісту
+│   ├── playlist_form.html          # Форма плейлісту
+│   └── statistics.html             # Статистика
 │
-├── pl/                          # Presentation Layer (маршрути)
-│   ├── __init__.py
-│   ├── routes.py                # FastAPI маршрути
-│   ├── schemas.py               # Pydantic моделі для валідації
-│   └── __pycache__/
+├── static/
+│   └── style.css                   # CSS стилі
 │
-├── bll/                         # Business Logic Layer (служби)
-│   ├── __init__.py
-│   ├── services.py              # SpotifyService, StatisticsService
-│   └── __pycache__/
+├── src/
+│   ├── pl/
+│   │   ├── routes.py               # FastAPI маршрути (HTML + API)
+│   │   └── schemas.py              # Pydantic схеми
+│   ├── bll/
+│   │   └── services.py             # Business Logic Services
+│   ├── dal/
+│   │   ├── models.py               # SQLAlchemy моделі
+│   │   ├── repositories.py         # CRUD операції
+│   │   └── database.py             # DB конфіг
+│   └── common/
+│       ├── logger.py               # Логування
+│       └── constants.py            # Константи
 │
-├── dal/                         # Data Access Layer (дані)
-│   ├── __init__.py
-│   ├── database.py              # Налаштування БД та сесій
-│   ├── models.py                # SQLAlchemy моделі
-│   ├── repositories.py          # DataAccessService
-│   └── __pycache__/
-│
-├── generators/                  # Генератори даних
-│   ├── __init__.py
-│   ├── generate_csv.py          # Генератор тестових CSV даних
-│   └── __pycache__/
-│
-├── spotify_lab.egg-info/        # Інформація про пакет (auto)
-├── __init__.py
-├── main.py                      # FastAPI додаток
-│
-config.py                        # Конфігурація змінних
-main.py                         # Entry point для запуску
-cli.py                          # Утиліти командного рядка
-pyproject.toml                  # Конфігурація проекту (замість requirements.txt)
-spotify_data.csv                # Тестові дані для імпорту
-run.bat                         # Скрипт для швидкого запуску (Windows)
-static/
-├── style.css                   # CSS стилі
-templates/
-├── base.html                   # Базовий шаблон
-├── index.html                  # Головна сторінка
-├── songs.html, song_form.html  # Пісні
-├── playlists.html etc.         # Плейлисти
-└── statistics.html             # Статистика
+├── main.py                         # Entry point + FastAPI app
+└── pyproject.toml                  # Зависимости
 ```
 
-## 📚 Сутності базі даних
+## 🔧 Технічний Стек
 
-### User (Користувач)
-```python
-- id: int (Primary Key)
-- email: str (UNIQUE)
-- username: str
-- subscription_id: int (Foreign Key)
-- registration_date: DateTime
-- is_active: bool
-- Relations:
-  - subscription: OneToOne → Subscription
-  - playlists: OneToMany → Playlist[]
-```
+| Компонент | Технологія |
+|-----------|-----------|
+| **Web Framework** | FastAPI |
+| **Template Engine** | Jinja2 |
+| **ORM** | SQLAlchemy 2.0 |
+| **Database** | SQLite3 |
+| **Styling** | CSS3 (Responsive) |
+| **Forms** | HTML5 + Method Override |
+| **Async** | Python asyncio |
+| **Server** | Uvicorn |
 
-### Song (Пісня/Трек)
-```python
-- id: int (Primary Key)
-- title: str (INDEX)
-- artist: str (INDEX)
-- duration: int (в мс)
-- genre: str
-- created_at: DateTime
-- Relations:
-  - playlists: ManyToMany → Playlist[]
-```
+## 🎯 Принципи та Паттерни
 
-### Playlist (Плейліст)
-```python
-- id: int (Primary Key)
-- name: str
-- description: str
-- owner_id: int (Foreign Key)
-- created_at: DateTime
-- updated_at: DateTime
-- Relations:
-  - owner: ManyToOne → User
-  - songs: ManyToMany → Song[]
-```
+### ✅ SOLID Принципи
+- **SRP** - Кожна папка має одну відповідальність (PL, BLL, DAL)
+- **OCP** - Розширення через новi сервіси без зміни існуючих
+- **LSP** - DAL інтерфейс дотримується контракту
+- **ISP** - Мінімальні залежності між шарами
+- **DIP** - Залежність на абстракціях (сервісах), не реалізаціях
 
-### Subscription (Підписка - Base Class)
-```python
-- id: int (Primary Key)
-- type: str (Discriminator: FreeSubscription|PremiumSubscription|StudentSubscription)
-- auto_renew: bool
-- start_date: DateTime
-- end_date: DateTime (nullable)
-- Relations:
-  - user: OneToOne → User
+### 🏗️ Design Patterns
+- **MVC** - Model-View-Controller архітектура
+- **Repository** - DAL інкапсуляція
+- **Factory** - Создание підписок
+- **Dependency Injection** - FastAPI Depends
+- **Template Method** - Базовий HTML шаблон
 
-Subclasses:
-├─ FreeSubscription ($0.00)
-├─ PremiumSubscription ($9.99/month) - offline download, high quality
-└─ StudentSubscription ($4.99/month) - university verification
-```
+## 🚀 Запуск
 
-## 🚀 Встановлення та запуск
-
-### Вимоги
-- Python 3.10+
-- pip або uv (менеджер пакетів)
-- SQLite3 (включено у Python)
-
-### Крок 1: Встановлення залежностей
-
+### 1. Встановлення залежностей
 ```bash
-# Встановіть залежності через uv (рекомендується)
-uv sync
-
-# Або через pip в віртуальному середовищі
-python -m venv venv
-# Windows:
-venv\Scripts\activate
-# Linux/Mac:
-source venv/bin/activate
-
-pip install -e .
+pip install -e .  # Встановить проект з pyproject.toml
 ```
 
-### Крок 2: Налаштування конфігурації
-
-Конфігурація вкажена у [config.py](config.py) і може бути перевищена змінними околишу. По (стандартная) конфігурація:
-
-```python
-# База даних
-DATABASE_URL = "sqlite:///./spotify.db"
-
-# Корневая директория CSV
-CSV_FILE_PATH = "./spotify_data.csv"
-
-# API
-API_TITLE = "Spotify Platform API"
-API_VERSION = "2.0.0"
-```
-
-### Крок 3: Запуск додатку
-
-```bash
-# Запуск через uv
-uv run main.py
-
-# Або через uvicorn безпосередньо
-uvicorn src.main:app --reload
-```
-
-API буде доступно на: **http://localhost:8000**
-Swagger документація: **http://localhost:8000/docs**
-ReDoc документація: **http://localhost:8000/redoc**
-
-## 📋 Команди CLI
-
-Для виконання CLI команд вам потрібна активна віртуальне середовище або uv.
-
-### Ініціалізація БД
+### 2. Ініціалізація БД та імпорт даних
 ```bash
 python cli.py init-db
-# або
-uv run cli.py init-db
-```
-
-### Імпорт CSV даних
-```bash
 python cli.py import-csv --csv spotify_data.csv
-# або
-uv run cli.py import-csv --csv spotify_data.csv
 ```
 
-### Показ статистики
+### 3. Запуск сервера
 ```bash
-python cli.py stats
-# або
-uv run cli.py stats
+# Option 1: Direct via Python
+python main.py
+
+# Option 2: Via uvicorn
+uvicorn src.main:app --reload --port 8000
 ```
 
-### Очистка БД
-```bash
-python cli.py clean
-# або
-uv run cli.py clean
-```
+### 4. Доступ до web-додатку
+- **Web UI**: http://localhost:8000
+- **API Docs**: http://localhost:8000/docs (Swagger)
+- **API ReDoc**: http://localhost:8000/redoc
 
-## 🔌 API Endpoints
+## ✨ Особливості Реалізації
 
-### Імпорт
-- **POST** `/api/import/csv` - Завантажити та імпортувати CSV файл
+### 🎨 Frontend
+- **Responsive Design** - працює на всіх розмірах екранів
+- **Form Validation** - валідація на HTML рівні
+- **User Feedback** - повідомлення про дії
+- **Easy Navigation** - інтуїтивна навігація
 
-### Користувачі
-- **GET** `/api/users` - Отримати всіх користувачів
-- **GET** `/api/users/{user_id}` - Отримати користувача з плейлистами
+### 🔌 Backend
+- **Async/Await** - асинхронна обробка запитів
+- **Error Handling** - правильне обробка помилок
+- **Logging** - детальне логування всіх операцій
+- **DB Transactions** - атомарні операції в БД
 
-### Пісні
-- **GET** `/api/songs` - Отримати всі пісні
+### 📊 Business Logic
+- **BLL Services** - вся бізнес-логіка в сервісах
+- **DAL Abstraction** - НЕ залежність від БД реалізації
+- **Type Hints** - повна типізація коду
+- **Validation** - валідація на рівні сервісів
 
-### Плейлисти
-- **GET** `/api/playlists` - Отримати всі плейлисти
-- **GET** `/api/playlists/{playlist_id}` - Отримати плейліст з піснями
+## 📈 Можливі Розширення
 
-### Статистика
-- **GET** `/api/statistics` - Отримати статистику платформи
-
-### Здоров'я
-- **GET** `/api/health` - Перевірка здоров'я API
-
-## 📊 Процес імпорту CSV
-
-1. **Читання CSV файлу** (`spotify_data.csv`)
-2. **Парсинг рядків** - розподіл на колони: email, subType, playlistName, songTitle, artist, duration, genre
-3. **Перевірка дублікатів**:
-   - Пісня: глобально (по title + artist)
-   - Користувач: по email
-   - Плейліст: в межах користувача
-4. **Factory Pattern**: створення правильного типу підписки
-5. **SQLAlchemy Relations**: встановлення відносин
-6. **Atomic Save**: збереження всіх даних в транзакції
-
-### CSV формат
-
-```csv
-email,subType,playlistName,songTitle,artist,duration,genre
-user27@example.com,PREMIUM,Playlist_1,Song Title 0,Artist 18,136,Rock
-user13@example.com,PREMIUM,Playlist_3,Song Title 1,Artist 11,261,Pop
-...
-```
-
-## 🏛️ Design Patterns & Принципи
-
-### 1. Dependency Inversion (DIP)
-```python
-# BLL залежить від інтерфейсу, не від реалізації
-class SpotifyService:
-    def __init__(self, dal: IDataAccessLayer):
-        self.dal = dal  # Залежність ін'єктується
-
-# Це дозволяє легко замінити реалізацію
-```
-
-### 2. Factory Pattern
-```python
-# Створення правильного типу підписки
-def _create_subscription(self, subscription_type: str) -> Subscription:
-    if subscription_type.upper() == 'PREMIUM':
-        return PremiumSubscription(type='PremiumSubscription')
-    elif subscription_type.upper() == 'STUDENT':
-        return StudentSubscription(type='StudentSubscription')
-    else:
-        return FreeSubscription(type='FreeSubscription')
-```
-
-### 3. Repository Pattern
-```python
-# DataAccessService інкапсулює всі DB операції
-class DataAccessService(IDataAccessLayer):
-    async def get_user_by_email(self, email: str) -> Optional[User]:
-        # DB operation implementation
-```
-
-### 4. Single Responsibility (SRP)
-- **SpotifyService** - імпорт CSV, управління даними
-- **StatisticsService** - аналітика
-- **DataAccessService** - робота з БД
-- **Models** - представлення сутностей
-
-### 5. FastAPI Dependency Injection
-```python
-# FastAPI вбудована DI система
-def get_spotify_service(db: Session = Depends(get_db)) -> SpotifyService:
-    dal = DataAccessService(db)
-    return SpotifyService(dal)
-
-@router.get("/data")
-async def get_data(service: SpotifyService = Depends(get_spotify_service)):
-    # Сервіс автоматично ін'єктується
-```
-
-## 🗂️ База даних
-
-- **Тип**: SQLite3
-- **Локація**: `spotify.db` (автоматично створюється)
-- **Автоматична синхронізація**: SQLAlchemy автоматично створює таблиці на старт
-
-### Переглід БД
-
-#### VS Code
-1. Встановіть розширення: **SQLite Viewer** або **SQLite3 Editor**
-2. Клікніть на `spotify.db` файл
-3. Переглядайте таблиці та дані
-
-#### Командна лінія (Windows PowerShell для SQLite)
-```bash
-# Встановіть sqlite3 (якщо не встановлено)
-# Або використовуйте Python:
-python -c "import sqlite3; conn = sqlite3.connect('spotify.db'); print([row for row in conn.execute('SELECT name FROM sqlite_master WHERE type=\"table\"')])"
-```
-
-## 📝 Порівняння TypeScript vs Python реалізацій
-
-| Аспект | TypeScript/NestJS | Python/FastAPI |
-|--------|-------------------|----------------|
-| **ORM** | TypeORM | SQLAlchemy |
-| **Framework** | NestJS | FastAPI |
-| **Dependency Injection** | NestJS DI | FastAPI Depends |
-| **Async** | RxJS / async/await | async/await |
-| **Validation** | class-validators | Pydantic |
-| **Database** | TypeORM (SQL Builder) | SQLAlchemy ORM |
-| **API Docs** | Swagger (auto) | Swagger (auto) |
-
-## 🔧 Залежності Python
-
-| Пакет | Мінімальна версія | Призначення |
-|-------|----------|----------|
-| fastapi | 0.135.0 | Web framework |
-| uvicorn[standard] | 0.24.0 | ASGI server |
-| sqlalchemy | 2.0.40 | ORM |
-| pydantic | 2.12.0 | Data validation |
-| python-multipart | 0.0.20 | Form data parsing |
-| jinja2 | 3.0.0 | Template rendering |
-| pydantic-settings | 2.1.0 | Environment config |
-
-## 📚 Примітки та переваги Python реалізації
-
-✅ **Простота**: Python синтаксис зрозумів та лаконічний  
-✅ **FastAPI**: Найшвидший Python framework, автоматична документація  
-✅ **SQLAlchemy**: Потужний ORM з гнучкістю  
-✅ **Type Hints**: Python 3.8+ підтримує type hints як TypeScript  
-✅ **Productivity**: Менше boilerplate коду ніж TypeScript  
-✅ **Community**: Величезна спільнота, багато бібліотек  
-
-## 🐛 Типові помилки та розв'язання
-
-### Помилка: "ModuleNotFoundError: No module named 'fastapi'"
-```bash
-# Встановіть залежності заново
-pip install -r requirements.txt
-```
-
-### Помилка: "sqlite3.OperationalError: database is locked"
-```bash
-# Видаліть spotify.db і переiniziалізуйте
-python cli.py clean
-```
-
-### Помилка: "Relations not loaded"
-SQLAlchemy автоматично завантажує relations з ForeignKey. Якщо виникають проблеми:
-```python
-# Явно завантажіть relations
-user = db.query(User).filter(User.id == 1).first()
-_ = user.subscription  # Força載入
-_ = user.playlists    # Força載入
-```
-
-## 🚀 Розширення
-
-- [ ] REST API endpoints (готово ✓)
-- [ ] JWT аутентифікація
-- [ ] Статистика слухання пісень
-- [ ] Рекомендаційна система
-- [ ] Unit тести (pytest)
-- [ ] Integration тести
-- [ ] Docker контейнеризація
-- [ ] GraphQL API
+- [ ] JWT аутентифікація користувачів
+- [ ] Пошук та фільтрацію даних
+- [ ] Пагінацію списків
 - [ ] WebSocket для real-time оновлень
 - [ ] Caching (Redis)
 - [ ] Rate limiting
 - [ ] Database migrations (Alembic)
+- [ ] Unit тести (pytest)
+- [ ] Docker контейнеризація
+- [ ] GraphQL API
 
-## 📖 Додаткова інформація
+## 📝 Висновок
 
-- Оригінальна документація: [ARCHITECTURE.md](ARCHITECTURE.md)
-- Гайд розробки: [CONTRIBUTING.md](CONTRIBUTING.md)
-- README TypeScript версії: [README.md](README.md)
+Проект успішно реалізує MVC архітектуру з:
+- ✅ Model Layer - SQLAlchemy + Repository Pattern
+- ✅ View Layer - Jinja2 HTML шаблони + CSS
+- ✅ Controller Layer - FastAPI маршрути
+- ✅ Business Logic Layer - Сервіси для управління даними
+- ✅ CRUD операції - Повна функціональність управління сутностями
+
+Додаток демонструє правильну розділення відповідальності та дотримання SOLID принципів у веб-розробці.
 
 ---
 
-**Дата:** Март 2026  
-**Версія проекту:** 1.0.0  
-**Версія API:** 2.0.0  
-**Мінімальна версія Python:** 3.10
+**Версія**: 1.0.0  
+**Last Updated**: 2026-03-26  
+**Framework**: FastAPI + SQLAlchemy + Jinja2
