@@ -4,9 +4,13 @@ Configuration settings for Spotify application
 """
 import os
 from pathlib import Path
+from dotenv import load_dotenv
 
 # Project root
 BASE_DIR = Path(__file__).resolve().parent
+
+# Load environment variables from .env file
+load_dotenv(os.path.join(BASE_DIR, ".env"))
 
 # Database
 DATABASE_URL = "sqlite:///./spotify.db"

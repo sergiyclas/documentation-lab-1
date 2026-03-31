@@ -51,6 +51,12 @@ class SpotifyService:
                 for row_num, row in enumerate(reader, start=2):  # Start from 2 (header is row 1)
                     try:
                         stats["total_rows"] += 1
+                        
+                        # --- ADD THIS LINE ---
+                        # Output the row data. The Strategy pattern in logger.py 
+                        # will route this to either Console or Kafka based on .env
+                        logger.info(f"Processing record: {row}")
+                        # ---------------------
 
                         # Extract data
                         email = row.get("email", "").strip()

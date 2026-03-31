@@ -1,4 +1,6 @@
-﻿"""Common utilities package"""
+﻿# src/common/__init__.py
+
+"""Common utilities package"""
 
 from .logger import get_logger, flush_output, close_output
 from .output_strategy import OutputStrategy, ConsoleOutputStrategy, KafkaOutputStrategy, OutputStrategyFactory

@@ -28,36 +28,17 @@ class OutputStrategy(ABC):
 
 
 class ConsoleOutputStrategy(OutputStrategy):
-    """Console output strategy - writes to stdout/stderr using logging"""
-
-    def __init__(self):
-        """Initialize console strategy"""
-        self.handler = logging.StreamHandler()
-        self.formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
-        self.handler.setFormatter(self.formatter)
+    """Console output strategy - writes directly to stdout"""
 
     def write(self, level: str, message: str) -> None:
-        """Write message to console"""
-        logger = logging.getLogger()
-        
-        # Map string level to logging level
-        level_map = {
-            "DEBUG": logging.DEBUG,
-            "INFO": logging.INFO,
-            "WARNING": logging.WARNING,
-            "ERROR": logging.ERROR,
-            "CRITICAL": logging.CRITICAL,
-        }
-        
-        log_level = level_map.get(level.upper(), logging.INFO)
-        logger.log(log_level, message)
+        """Write message directly to console to avoid logging recursion"""
+        # We just print the formatted message directly
+        print(message)
 
     def flush(self) -> None:
-        """Flush console handler"""
-        if hasattr(self.handler, "flush"):
-            self.handler.flush()
+        """Flush stdout"""
+        import sys
+        sys.stdout.flush()
 
 
 class KafkaOutputStrategy(OutputStrategy):
