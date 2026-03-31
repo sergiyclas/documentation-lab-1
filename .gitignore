@@ -1,0 +1,29 @@
+# Environment and dependencies
+.venv/
+.env
+__pycache__/
+*.py[cod]
+*$py.class
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+*.db
+*.sqlite
+*.sqlite3
+logs/
+.coverage
+htmlcov/
+
+# UV
+.uv-cache/
+uv.lock

@@ -1,0 +1,143 @@
+<!-- statistics.html -->
+
+{% extends "base.html" %}
+
+{% block title %}Статистика - Spotify Platform{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>📊 Статистика платформи</h2>
+</div>
+
+<div class="stats-grid-large">
+    <div class="stat-card-large">
+        <h3>👥 Користувачів</h3>
+        <p class="stat-number">{{ stats.total_users }}</p>
+    </div>
+    <div class="stat-card-large">
+        <h3>🎵 Пісень</h3>
+        <p class="stat-number">{{ stats.total_songs }}</p>
+    </div>
+    <div class="stat-card-large">
+        <h3>📋 Плейлистів</h3>
+        <p class="stat-number">{{ stats.total_playlists }}</p>
+    </div>
+    <div class="stat-card-large">
+        <h3>🔗 Пісень у плейлістах</h3>
+        <p class="stat-number">{{ stats.total_playlist_songs }}</p>
+    </div>
+</div>
+
+{% if stats.subscriptions %}
+<div class="section">
+    <h3>📱 Розподіл за типами підписки</h3>
+    <div class="subscription-stats">
+        {% for sub_type, count in stats.subscriptions.items() %}
+        <div class="sub-stat">
+            <span class="sub-type">{{ sub_type }}</span>
+            <span class="sub-count">{{ count }} користувачів</span>
+            <div class="progress-bar">
+                <div class="progress" style="width: {{ (count / stats.total_users * 100) | round }}%"></div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+
+{% if stats.average_playlist_size %}
+<div class="section">
+    <h3>📈 Середня величина плейлісту</h3>
+    <p>{{ stats.average_playlist_size | round(2) }} пісень на плейліст</p>
+</div>
+{% endif %}
+
+<style>
+    .stats-grid-large {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+        margin: 2rem 0;
+    }
+
+    .stat-card-large {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        text-align: center;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .stat-card-large:nth-child(2) {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+
+    .stat-card-large:nth-child(3) {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    }
+
+    .stat-card-large:nth-child(4) {
+        background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+    }
+
+    .stat-card-large h3 {
+        margin: 0 0 1rem 0;
+        font-size: 1.2rem;
+    }
+
+    .stat-number {
+        font-size: 3rem;
+        font-weight: bold;
+        margin: 0;
+    }
+
+    .section {
+        margin-top: 2rem;
+        padding: 2rem;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+
+    .subscription-stats {
+        display: grid;
+        gap: 1.5rem;
+        margin-top: 1rem;
+    }
+
+    .sub-stat {
+        background: white;
+        padding: 1rem;
+        border-radius: 8px;
+        border-left: 4px solid #007bff;
+    }
+
+    .sub-type {
+        font-weight: bold;
+        font-size: 1.05rem;
+        display: block;
+        margin-bottom: 0.5rem;
+    }
+
+    .sub-count {
+        font-size: 0.95rem;
+        color: #666;
+        display: block;
+        margin-bottom: 0.8rem;
+    }
+
+    .progress-bar {
+        height: 8px;
+        background: #e9ecef;
+        border-radius: 4px;
+        overflow: hidden;
+    }
+
+    .progress {
+        height: 100%;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        border-radius: 4px;
+        transition: width 0.3s ease;
+    }
+</style>
+{% endblock %}

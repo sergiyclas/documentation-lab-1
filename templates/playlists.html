@@ -1,0 +1,128 @@
+<!-- playlists.html -->
+
+{% extends "base.html" %}
+
+{% block title %}Плейлисти - Spotify Platform{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h2>📋 Плейлисти</h2>
+    <a href="/playlists/create" class="btn btn-primary">➕ Створити плейліст</a>
+</div>
+
+{% if message %}
+<div class="alert alert-{{ message_type }}">
+    {{ message }}
+</div>
+{% endif %}
+
+{% if playlists %}
+<div class="playlists-grid">
+    {% for playlist in playlists %}
+    <div class="playlist-card">
+        <div class="card-header">
+            <h3>{{ playlist.name }}</h3>
+            <small>ID: {{ playlist.id }}</small>
+        </div>
+        <div class="card-body">
+            {% if playlist.description %}
+            <p class="description">{{ playlist.description }}</p>
+            {% else %}
+            <p class="description empty">Немає опису</p>
+            {% endif %}
+            <div class="playlist-stats">
+                <span class="stat">🎵 {{ playlist.song_count }} пісень</span>
+                <span class="stat">👤 Власник: {{ playlist.owner_id }}</span>
+            </div>
+        </div>
+        <div class="card-footer">
+            <a href="/playlists/{{ playlist.id }}" class="btn btn-sm btn-info">👁️ Переглянути</a>
+            <a href="/playlists/{{ playlist.id }}/edit" class="btn btn-sm btn-warning">✏️ Редагувати</a>
+            <form method="POST" action="/playlists/{{ playlist.id }}/delete" style="display: inline;">
+                <button type="submit" class="btn btn-sm btn-danger" onclick="return confirm('Ви впевнені?')">🗑️ Видалити</button>
+            </form>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="pagination">
+    <p>Всього плейлистів: <strong>{{ playlists | length }}</strong></p>
+</div>
+{% else %}
+<div class="empty-state">
+    <p>Плейлисти не знайдені. <a href="/playlists/create">Створіть перший плейліст</a></p>
+</div>
+{% endif %}
+{% endblock %}
+
+<style>
+    .playlists-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .playlist-card {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        border-radius: 8px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .playlist-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .card-header {
+        background: #007bff;
+        color: white;
+        padding: 1rem;
+    }
+
+    .card-header h3 {
+        margin: 0;
+        font-size: 1.1rem;
+    }
+
+    .card-body {
+        padding: 1rem;
+        flex-grow: 1;
+    }
+
+    .description {
+        margin: 0 0 1rem 0;
+        color: #555;
+        font-size: 0.95rem;
+    }
+
+    .description.empty {
+        color: #999;
+        font-style: italic;
+    }
+
+    .playlist-stats {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .stat {
+        font-size: 0.9rem;
+        color: #666;
+    }
+
+    .card-footer {
+        padding: 1rem;
+        background: #f8f9fa;
+        border-top: 1px solid #dee2e6;
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+</style>
