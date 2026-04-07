@@ -9,8 +9,8 @@ from src.common.logger import get_logger
 logger = get_logger(__name__)
 
 # Configuration
-NUM_USERS = 50
-NUM_SONGS = 139
+NUM_USERS = 2
+NUM_SONGS = 5
 NUM_PLAYLISTS = 5
 SUBSCRIPTION_TYPES = ["FREE", "PREMIUM", "STUDENT"]
 GENRES = ["Rock", "Pop", "Hip-Hop", "Jazz", "EDM", "Classical", "Blues", "Country"]

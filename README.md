@@ -1,288 +1,232 @@
-# 🎵 Spotify Platform - Web Interface (MVC Implementation)
+# 🎵 Spotify Platform - Complete Implementation
 
-## Лабораторна 3: Реалізація Web-додатку на основі шаблону MVC
+# Лабораторна 4: GoF Паттерн Стратегія 🎯
 
-Цей документ описує реалізацію Web-інтерфейсу для Spotify Platform з дотриманням MVC архітектури.
+## Опис реалізації
 
-## 📋 Що було реалізовано
+Реалізовано паттерн **Strategy** для відділення логіки виводу даних від основного коду. Дозволяє динамічно переключатися між консольним та Kafka розповсюджувачем **без змін кода**.
 
-### 1. **Model та Business Logic Layer**
-- ✅ SQLAlchemy ORM моделі (User, Song, Playlist, Subscription)
-- ✅ Business Logic Services (SpotifyService, StatisticsService)
-- ✅ Repository Pattern для DAL (Data Access Layer)
-- ✅ CRUD операції для Song та Playlist
+## ✅ Що було реалізовано
 
-### 2. **View Layer (HTML Шаблони)**
-Створено 8 HTML шаблонів використовуючи Jinja2:
+### 1. **Strategy Pattern**
+- ✅ Абстрактний клас `OutputStrategy` з методами `write()` та `flush()`
+- ✅ Конкретні реалізації: `ConsoleOutputStrategy` та `KafkaOutputStrategy`
+- ✅ Factory Pattern для створення стратегій (`OutputStrategyFactory`)
+- ✅ Можливість реєстрації власних стратегій в runtime
 
-#### **Основні сторінки:**
-- `base.html` - базовий шаблон з навігацією та footer
-- `index.html` - домашня сторінка зі статистикою
-- `statistics.html` - сторінка зі статистикою платформи
+### 2. **Kafka Integration**
+- ✅ Kafka producer для відправки логів до topic
+- ✅ JSON серіалізація повідомлень
+- ✅ Graceful fallback на консоль при помилці Kafka
+- ✅ Автоматичне закриття producer
 
-#### **Пісні (Songs):**
-- `songs.html` - список всіх пісень з CRUD кнопками
-- `song_form.html` - форма для додавання/редагування пісні
+### 3. **Configuration-based Switching**
+- ✅ Переключення через змінні середовища (env vars)
+- ✅ Мінімальні зміни в коді (тільки конфіг)
+- ✅ Підтримка різних параметрів для кожної стратегії
 
-#### **Плейлисти (Playlists):**
-- `playlists.html` - список плейлистів у формі карток
-- `playlist_detail.html` - деталі плейлісту з піснями
-- `playlist_form.html` - форма для створення/редагування плейлісту
+### 4. **Logger Integration**
+- ✅ Custom handler для інтеграції logging з strategies
+- ✅ Глобальна стратегія для всіх logger'ів
+- ✅ Ліниве ініціалізування (lazy initialization)
 
-### 3. **Controller (FastAPI Routes)**
-
-#### **HTML Endpoints (View Layer):**
-```
-GET  /                           - Домашня сторінка
-GET  /songs                      - Список пісень
-GET  /songs/create               - Форма створення пісні
-POST /songs/create               - Обробка створення пісні
-GET  /songs/{id}/edit            - Форма редагування пісні
-POST /songs/{id}/edit            - Обробка редагування пісні
-POST /songs/{id}/delete          - Видалення пісні
-GET  /playlists                  - Список плейлистів
-GET  /playlists/create           - Форма створення плейлісту
-POST /playlists/create           - Обробка створення плейлісту
-GET  /playlists/{id}             - Деталі плейлісту
-GET  /playlists/{id}/edit        - Форма редагування плейлісту
-POST /playlists/{id}/edit        - Обробка редагування плейлісту
-POST /playlists/{id}/delete      - Видалення плейлісту
-POST /playlists/{id}/add-song    - Додавання пісні до плейлісту
-POST /playlists/{id}/songs/{sid}/remove - Видалення пісні з плейлісту
-GET  /statistics                 - Статистика платформи
-```
-
-#### **API Endpoints (JSON):**
-```
-POST /api/import/csv             - Імпорт даних з CSV
-GET  /api/users                  - Отримати всіх користувачів
-GET  /api/users/{id}             - Отримати користувача з плейлистами
-GET  /api/songs                  - Отримати всі пісні
-GET  /api/playlists              - Отримати всі плейлисти
-GET  /api/playlists/{id}         - Отримати плейліст з піснями
-GET  /api/statistics             - Отримати статистику
-GET  /api/health                 - Health check
-```
-
-### 4. **Стилізація (CSS)**
-- `static/style.css` - комплексні CSS стилі з:
-  - Responsive дизайном (мобільні, планшети, десктоп)
-  - Градієнтними кнопками і картками
-  - Таблицями з гарним форматуванням
-  - Формами з валідацією
-  - Анімаціями та переходами
-
-## 🏗️ Архітектура MVC
+## 🏗️ Архітектура Strategy Pattern
 
 ```
-┌─────────────────────────────────────────────┐
-│         VIEW LAYER (Presentation)           │
-│  HTML Template + CSS + Forms                │
-│  - base.html, songs.html, playlist*.html    │
-│  - style.css (responsive design)            │
-└─────────────────┬───────────────────────────┘
-                  │ (Користувач взаємодіє)
-┌─────────────────▼───────────────────────────┐
-│      CONTROLLER (FastAPI Routes)            │
-│  - HTML endpoints (/songs, /playlists)      │
-│  - API endpoints (/api/songs, /api/users)   │
-│  - Form processing (POST/PUT/DELETE)        │
-└─────────────────┬───────────────────────────┘
-                  │ (Бізнес-логіка)
-┌─────────────────▼───────────────────────────┐
-│     MODEL LAYER (Business Logic)            │
-│  - SpotifyService (управління даними)       │
-│  - StatisticsService (аналітика)            │
-│  - DataAccessService (репозиторії)          │
-└─────────────────┬───────────────────────────┘
-                  │ (БД операції)
-┌─────────────────▼───────────────────────────┐
-│        DATA ACCESS LAYER (DAL)              │
-│  - SQLAlchemy ORM моделі                    │
-│  - Repository Pattern                       │
-│  - CRUD операції                            │
-│  - SQLite база даних                        │
-└─────────────────────────────────────────────┘
+┌─────────────────────────────────────┐
+│        OutputStrategy (ABC)         │  ← Абстрактна стратегія
+│    - write(level, message)          │
+│    - flush()                        │
+└────────┬───────────────────┬────────┘
+         │                   │
+┌────────▼───────┐    ┌──────▼──────────┐
+│  ConsoleOutput │    │  KafkaOutput    │
+│    Strategy    │    │   Strategy      │
+│  (файл/stdout) │    │  (message queue)│
+└────────┬───────┘    └──────┬──────────┘
+         │                   │
+         └───────┬───────────┘
+                 │
+         ┌───────▼──────────┐
+         │OutputStrategy   │
+         │  Factory        │  ← Factory для створення
+         │ create_strategy │
+         └───────┬──────────┘
+                 │
+         ┌───────▼──────────┐
+         │  get_logger()    │  ← Интеграция с logger'ом
+         │ (StrategyHandler)│
+         └──────────────────┘
 ```
 
-## 🚀 CRUD Операції
+## 🔧 Конфігурація
 
-### Songs (Пісні)
-```
-CREATE: POST /songs/create          (Форма: song_form.html)
-READ:   GET  /songs                 (Список: songs.html)
-UPDATE: POST /songs/{id}/edit       (Форма: song_form.html)
-DELETE: POST /songs/{id}/delete     (Кнопка с підтвердженням)
-```
-
-### Playlists (Плейлисти)
-```
-CREATE: POST /playlists/create      (Форма: playlist_form.html)
-READ:   GET  /playlists             (Карти: playlists.html)
-        GET  /playlists/{id}        (Деталі: playlist_detail.html)
-UPDATE: POST /playlists/{id}/edit   (Форма: playlist_form.html)
-DELETE: POST /playlists/{id}/delete (Кнопка с підтвердженням)
-ADD:    POST /playlists/{id}/add-song (Dropdown в деталях)
-REMOVE: POST /playlists/{id}/songs/{sid}/remove
-```
-
-## 🎨 Функціональні Можливості
-
-### ✨ Користувацьський Інтерфейс
-- **Навігація** - меню з посиланнями на основні сторінки
-- **Формування** - інтуїтивні форми з валідацією
-- **Таблиці** - сортування та перегляд даних у таблицях
-- **Карти** - красивий перегляд плейлистів у форматі карток
-- **Статистика** - графічне представлення даних з прогрес-барами
-
-### 🔄 Взаємодія Даних
-- Додавання пісень до плейлистів
-- Видалення пісень з плейлистів
-- Редагування імені та опису плейлістів
-- Видалення всіх даних через простий інтерфейс
-
-### 📊 Демонстрація Бізнес-Логіки
-- Отримання даних з БД через BLL сервіси
-- Управління відносинами (relationships) між сутностями
-- Трансформація даних із моделей у представлення
-
-## 📁 Структура Файлів
-
-```
-project/
-├── templates/                      # HTML шаблони
-│   ├── base.html                   # Базовий шаблон
-│   ├── index.html                  # Домашня сторінка
-│   ├── songs.html                  # Список пісень
-│   ├── song_form.html              # Форма пісні
-│   ├── playlists.html              # Список плейлистів
-│   ├── playlist_detail.html        # Деталі плейлісту
-│   ├── playlist_form.html          # Форма плейлісту
-│   └── statistics.html             # Статистика
-│
-├── static/
-│   └── style.css                   # CSS стилі
-│
-├── src/
-│   ├── pl/
-│   │   ├── routes.py               # FastAPI маршрути (HTML + API)
-│   │   └── schemas.py              # Pydantic схеми
-│   ├── bll/
-│   │   └── services.py             # Business Logic Services
-│   ├── dal/
-│   │   ├── models.py               # SQLAlchemy моделі
-│   │   ├── repositories.py         # CRUD операції
-│   │   └── database.py             # DB конфіг
-│   └── common/
-│       ├── logger.py               # Логування
-│       └── constants.py            # Константи
-│
-├── main.py                         # Entry point + FastAPI app
-└── pyproject.toml                  # Зависимости
-```
-
-## 🔧 Технічний Стек
-
-| Компонент | Технологія |
-|-----------|-----------|
-| **Web Framework** | FastAPI |
-| **Template Engine** | Jinja2 |
-| **ORM** | SQLAlchemy 2.0 |
-| **Database** | SQLite3 |
-| **Styling** | CSS3 (Responsive) |
-| **Forms** | HTML5 + Method Override |
-| **Async** | Python asyncio |
-| **Server** | Uvicorn |
-
-## 🎯 Принципи та Паттерни
-
-### ✅ SOLID Принципи
-- **SRP** - Кожна папка має одну відповідальність (PL, BLL, DAL)
-- **OCP** - Розширення через новi сервіси без зміни існуючих
-- **LSP** - DAL інтерфейс дотримується контракту
-- **ISP** - Мінімальні залежності між шарами
-- **DIP** - Залежність на абстракціях (сервісах), не реалізаціях
-
-### 🏗️ Design Patterns
-- **MVC** - Model-View-Controller архітектура
-- **Repository** - DAL інкапсуляція
-- **Factory** - Создание підписок
-- **Dependency Injection** - FastAPI Depends
-- **Template Method** - Базовий HTML шаблон
-
-## 🚀 Запуск
-
-### 1. Встановлення залежностей
+### Console Output (За замовчуванням)
 ```bash
-pip install -e .  # Встановить проект з pyproject.toml
-```
+# config.py
+OUTPUT_TYPE = "console"
 
-### 2. Ініціалізація БД та імпорт даних
-```bash
-python cli.py init-db
-python cli.py import-csv --csv spotify_data.csv
-```
-
-### 3. Запуск сервера
-```bash
-# Option 1: Direct via Python
+# Або через env vars
+$env:OUTPUT_TYPE = "console"
 python main.py
-
-# Option 2: Via uvicorn
-uvicorn src.main:app --reload --port 8000
 ```
 
-### 4. Доступ до web-додатку
-- **Web UI**: http://localhost:8000
-- **API Docs**: http://localhost:8000/docs (Swagger)
-- **API ReDoc**: http://localhost:8000/redoc
+### Kafka Output
+```bash
+# 1. Запустити Kafka локально (Docker)
+docker run -d --name kafka -p 9092:9092 confluentinc/cp-kafka:latest
+
+# 2. Встановити OUTPUT_TYPE
+$env:OUTPUT_TYPE = "kafka"
+$env:KAFKA_BOOTSTRAP_SERVERS = "localhost:9092"
+
+# 3. Запустити demo
+uv run .\demo_strategy.py
+
+# config.py
+OUTPUT_TYPE = "kafka"
+KAFKA_BOOTSTRAP_SERVERS = "localhost:9092"
+KAFKA_TOPIC = "application-logs"
+
+# Або через env vars
+$env:OUTPUT_TYPE = "kafka"
+$env:KAFKA_BOOTSTRAP_SERVERS = "localhost:9092"
+$env:KAFKA_TOPIC = "application-logs"
+python main.py
+```
+
+## 📝 Передача даних
+
+### Console Strategy
+```
+[2026-03-29 14:30:45,123] - root - INFO - User created: user@example.com
+[2026-03-29 14:30:46,456] - root - INFO - Playlist created: My Favorite Songs
+```
+
+### Kafka Strategy
+```json
+{
+  "level": "INFO",
+  "message": "User created: user@example.com",
+  "timestamp": "2026-03-29 14:30:45.123456"
+}
+```
+
+## 📦 Залежності
+
+### Основні (для Console)
+```
+Вже включені в основні залежності (FastAPI, logging, etc.)
+```
+
+### Kafka (опціональне)
+```bash
+pip install -e ".[kafka]"
+# або
+pip install kafka-python>=2.0.0
+```
+
+## 🚀 Демонстрація
+
+### Запуск demo скрипту
+```bash
+python demo_strategy.py
+```
+
+Скрипт демонструє:
+1. Console Output Strategy
+2. Kafka Output Strategy (with fallback)
+3. Logger integration with Strategy
+4. Dynamic strategy switching
+
+## 📂 Файли реалізації
+
+| Файл | Функція |
+|------|---------|
+| `src/common/output_strategy.py` | Реалізація стратегій і factory |
+| `src/common/logger.py` | Integration з logging module |
+| `config.py` | Конфігурація стратегій |
+| `demo_strategy.py` | Demo скрипт для демонстрації |
+| `pyproject.toml` | Зависимости (kafka опціональна) |
 
 ## ✨ Особливості Реалізації
 
-### 🎨 Frontend
-- **Responsive Design** - працює на всіх розмірах екранів
-- **Form Validation** - валідація на HTML рівні
-- **User Feedback** - повідомлення про дії
-- **Easy Navigation** - інтуїтивна навігація
+### ✅ SOLID Принципи
+- **SRP** - Кожна стратегія має одну відповідальність
+- **OCP** - Легко додати нові стратегії без змін існуючих
+- **LSP** - Всі стратегії дотримуються контракту OutputStrategy
+- **ISP** - Мінімальні методи (write, flush)
+- **DIP** - Залежність на OutputStrategy, не на конкретних реалізаціях
 
-### 🔌 Backend
-- **Async/Await** - асинхронна обробка запитів
-- **Error Handling** - правильне обробка помилок
-- **Logging** - детальне логування всіх операцій
-- **DB Transactions** - атомарні операції в БД
+### ✅ Design Patterns
+- **Strategy** - Кілька алгоритмів в одному інтерфейсі
+- **Factory** - OutputStrategyFactory для створення стратегій
+- **Dependency Injection** - Через конфіг параметри
+- **Null Object** - Graceful fallback на консоль
 
-### 📊 Business Logic
-- **BLL Services** - вся бізнес-логіка в сервісах
-- **DAL Abstraction** - НЕ залежність від БД реалізації
-- **Type Hints** - повна типізація коду
-- **Validation** - валідація на рівні сервісів
+### ✅ Good Practices
+- Type hints для всіх методів
+- Docstrings для документації
+- Error handling з informative повідомленнями
+- Ліниве ініціалізування ресурсів
+- Resource cleanup (close методи)
 
-## 📈 Можливі Розширення
+## 🧪 Тестування
 
-- [ ] JWT аутентифікація користувачів
-- [ ] Пошук та фільтрацію даних
-- [ ] Пагінацію списків
-- [ ] WebSocket для real-time оновлень
-- [ ] Caching (Redis)
-- [ ] Rate limiting
-- [ ] Database migrations (Alembic)
-- [ ] Unit тести (pytest)
-- [ ] Docker контейнеризація
-- [ ] GraphQL API
+### Тест Console Strategy
+```python
+from src.common.output_strategy import ConsoleOutputStrategy
 
-## 📝 Висновок
+strategy = ConsoleOutputStrategy()
+strategy.write("INFO", "Test message")
+strategy.flush()
+```
 
-Проект успішно реалізує MVC архітектуру з:
-- ✅ Model Layer - SQLAlchemy + Repository Pattern
-- ✅ View Layer - Jinja2 HTML шаблони + CSS
-- ✅ Controller Layer - FastAPI маршрути
-- ✅ Business Logic Layer - Сервіси для управління даними
-- ✅ CRUD операції - Повна функціональність управління сутностями
+### Тест Kafka Strategy
+```python
+from src.common.output_strategy import OutputStrategyFactory
 
-Додаток демонструє правильну розділення відповідальності та дотримання SOLID принципів у веб-розробці.
+strategy = OutputStrategyFactory.create_strategy(
+    "kafka",
+    bootstrap_servers="localhost:9092",
+    topic="test-logs"
+)
+strategy.write("INFO", "Test message")
+strategy.flush()
+```
 
----
+### Тест Logger Integration
+```python
+from src.common.logger import get_logger
 
-**Версія**: 1.0.0  
-**Last Updated**: 2026-03-26  
-**Framework**: FastAPI + SQLAlchemy + Jinja2
+logger = get_logger(__name__)
+logger.info("Application started")
+logger.warning("Low disk space")
+logger.error("Connection failed")
+```
+
+## 🔄 Реалізація Custom Strategy
+
+Щоб додати власну стратегію:
+
+```python
+from src.common.output_strategy import OutputStrategy, OutputStrategyFactory
+
+class FileOutputStrategy(OutputStrategy):
+    def __init__(self, filename="logs.txt"):
+        self.filename = filename
+    
+    def write(self, level: str, message: str) -> None:
+        with open(self.filename, "a") as f:
+            f.write(f"[{level}] {message}\n")
+    
+    def flush(self) -> None:
+        pass
+
+# Реєстрація стратегії
+OutputStrategyFactory.register_strategy("file", FileOutputStrategy)
+
+# Використання
+strategy = OutputStrategyFactory.create_strategy("file", filename="app.log")
+strategy.write("INFO", "Message to file")
+```

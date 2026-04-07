@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from sqlalchemy.orm import Session
 from src.dal import SessionLocal, init_db, DataAccessService
 from src.bll import SpotifyService
-from src.common.logger import get_logger
+from src.common.logger import get_logger, flush_output
 
 logger = get_logger(__name__)
 
@@ -36,6 +36,7 @@ async def import_csv_from_file(csv_path: str):
         return stats
     finally:
         db.close()
+        flush_output()
 
 def show_statistics():
     """Show database statistics"""
