@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 Minimal Demo script for Lab 4: Strategy Pattern Implementation
-Demonstrates switching between Console and Kafka output strategies.
+Demonstrates switching between Console and Kafka output strategies using the Factory.
 """
 import sys
 import os
@@ -10,18 +10,18 @@ import time
 # Add src directory to Python path to allow imports
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from src.common.output_strategy import OutputStrategyFactory, ConsoleOutputStrategy
+from src.common.output_strategy import OutputStrategyFactory
 from src.common.logger import get_logger, close_output
 
 def run_minimal_demo():
-    print("\n--- DEMO 1: Direct Console Strategy ---")
-    # Explicitly instantiate and use the Console Strategy
-    console_strategy = ConsoleOutputStrategy()
-    console_strategy.write("INFO", "This message is handled directly by ConsoleOutputStrategy.")
+    print("\n--- DEMO 1: Console Strategy via Factory ---")
+    
+    console_strategy = OutputStrategyFactory.create_strategy("console")
+    console_strategy.write("INFO", "This message is handled by Console Strategy via Factory.")
     console_strategy.flush()
     time.sleep(0.5)
 
-    print("\n--- DEMO 2: Direct Kafka Strategy ---")
+    print("\n--- DEMO 2: Kafka Strategy via Factory ---")
     try:
         # Use the Factory to instantiate the Kafka Strategy
         kafka_strategy = OutputStrategyFactory.create_strategy(
@@ -29,10 +29,10 @@ def run_minimal_demo():
             bootstrap_servers="localhost:9092",
             topic="spotify_data_topic"
         )
-        kafka_strategy.write("INFO", "This message is handled directly by KafkaOutputStrategy.")
+        kafka_strategy.write("INFO", "This message is handled by Kafka Strategy via Factory.")
         kafka_strategy.flush()
         
-        # FIX: Explicitly close the Kafka connection to prevent KafkaTimeoutError
+        # Explicitly close the Kafka connection to prevent KafkaTimeoutError
         if hasattr(kafka_strategy, 'close'):
             kafka_strategy.close()
             
@@ -53,7 +53,7 @@ def run_minimal_demo():
     
     print("\n✅ Minimal Demo Completed.\n")
     
-    # FIX: Explicitly close the global logger's Kafka connection before exiting
+    # Explicitly close the global logger's Kafka connection before exiting
     close_output()
 
 if __name__ == "__main__":

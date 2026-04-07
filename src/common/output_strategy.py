@@ -47,7 +47,7 @@ class KafkaOutputStrategy(OutputStrategy):
     def __init__(
         self,
         bootstrap_servers: str = "localhost:9092",
-        topic: str = "application-logs",
+        topic: str = "spotify_data_topic",
     ):
         """
         Initialize Kafka strategy
